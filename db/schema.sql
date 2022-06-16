@@ -1,22 +1,22 @@
 DROP TABLE IF EXISTS clubs; 
-DROP TABLE IF EXISTS positions; 
-DROP TABLE IF EXISTS player; 
+DROP TABLE IF EXISTS field_positions; 
+DROP TABLE IF EXISTS players; 
 
-CREATE TABLE clubs(
+CREATE TABLE clubs (
     id INTEGER AUTO_INCREMENT PRIMARY KEY, 
-    name VARCHAR(30) NOT NULL
+    player_name VARCHAR(30) NOT NULL
 );
 
-CREATE TABLE positions(
+CREATE TABLE field_positions (
     id INTEGER AUTO_INCREMENT PRIMARY KEY, 
-    salary DECIMAL (10,2), 
-    position VARCHAR(30) NOT NULL
+    positions VARCHAR(30) NOT NULL,
+    salary DECIMAL (10,2)
 );
 
-CREATE TABLE player (
+CREATE TABLE players (
     id INTEGER AUTO_INCREMENT PRIMARY KEY, 
     first_name VARCHAR(30) NOT NULL, 
     last_name VARCHAR(30) NOT NULL, 
     club_id INTEGER NOT NULL,
-    position_id INTEGER NOT NULL, 
+    positions_id INTEGER NOT NULL 
 );
