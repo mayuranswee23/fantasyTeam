@@ -124,9 +124,8 @@ function addPosition(){
 }
 
 function addPlayer(){
-    const club = `SELECT * FROM clubs`; 
-    const positions = `SELECT * FROM field_positions`;
-    db.query(club, positions, (err, res)=>{
+    const club = `SELECT * FROM clubs `; 
+    db.query(club, (err, res)=>{
         if (err) throw err;  
     inquirer.prompt([
         {
@@ -144,24 +143,40 @@ function addPlayer(){
             type: 'list', 
             message: 'Which club does the player play for?',
             choices: res.map(res=> res.id + " " + res.player_name)
-        }, 
-        {
-            name: 'playerPosition', 
-            type: 'list', 
-            message: 'Which position does the player play?', 
-            choices: res.map(res=> res.id + " " + res.positions)
         }
     ]).then(response=>{
-        let clubId = response.playerClub.split('')[0]; 
+        let clubId = response.playerClub
+        // .text.split('')[0]; 
+        let idValue = clubId.split(' ')[0]
+        console.log(idValue)
+        let firstName = response.playerFirstName; 
+        let lastName = response.playerLastName;
+        const positions = `SELECT * FROM field_positions`;
+        db.query(positions, (err, res)=>{
+            if (err) throw err; 
+        inquirer.prompt([
+            {
+                name: 'playerPosition', 
+                type: 'list', 
+                message: 'Which position does the player play?', 
+                choices: res.map(res=> res.id + " " + res.positions)
+            }
+        ]). then( response =>{
+            let positionId = response.playerPosition.split(' ')[0];
+            
+    
         console.log(clubId);
+        // console.log(positionId)
         console.log(response);
         const sql = `INSERT INTO players (first_name, last_name, club_id, positions_id)
-        VALUES ('${response.playerFirstName}', '${response.playerLastName}',
-         '${clubId}', ${response.playerPosition})`;
+        VALUES ('${firstName}', '${lastName}',
+         '${idValue}', ${positionId})`;
          db.query(sql, (err, res)=>{
             if (err) throw err; 
             console.table(res)
             showPrompts();   
+        })
+    })
         })
     })
 })
