@@ -228,25 +228,102 @@ function updatePlayer(){
             const updates = response.updateField; 
             switch(updates){
                 case 'First Name':
-                    updateFirstName(ID, firstName);
+                    updateFirstName(ID);
                     break; 
                 case 'Last Name':
-                    updateLastName();
+                    updateLastName(ID);
                     break;
                 case 'Club':
-                    updateClub();
+                    updateClub(ID);
                     break;
                 case 'Position':
-                    updatePosition();
+                    updatePosition(ID);
                     break;
             }        
         })
     })
 }
 
-function updateFirstName(id, name){
- console.log(name)
- console.log(id)
+function updateFirstName(id){
+ inquirer.prompt([
+     {
+         name:'newName', 
+         type: 'input', 
+         message: 'Enter the new first name'
+     }
+ ]).then(response => {
+     const sql = `UPDATE players SET first_name = '${response.newName}' WHERE id = ${id}`;
+     db.query(sql, (err, res)=>{
+         if (err) throw err; 
+         console.log(res);
+         console.table(res)
+         showPrompts();
+     })
+ })
 }
+
+function updateLastName(id){
+    inquirer.prompt([
+        {
+            name:'newLastName', 
+            type: 'input', 
+            message: 'Enter the new last name'
+        }
+    ]).then(response => {
+        const sql = `UPDATE players SET last_name = '${response.newLastName}' WHERE id = ${id}`;
+        db.query(sql, (err, res)=>{
+            if (err) throw err; 
+            console.table(res)
+            showPrompts();
+        })
+    })
+   }
+
+function updateClub(id){
+    const sql = `SELECT * FROM clubs`; 
+    db.query(sql, (err, res)=>{
+        if (err) throw err;
+    inquirer.prompt([
+        {
+            name:'newClub', 
+            type: 'list', 
+            message: 'Choose the new Club',
+            choices: res.map(res=> res.id + " " + res.player_name)
+        }
+    ]).then(response => {
+        const clubID = response.newClub.split(' ')[0]
+        const sql = `UPDATE players SET club_id = ${clubID} WHERE id = ${id}`;
+        db.query(sql, (err, res)=>{
+            if (err) throw err; 
+            console.table(res)
+            showPrompts();
+        })
+        })
+    })
+}
+
+function updatePosition(id){
+    const sql = `SELECT * FROM field_positions`; 
+    db.query(sql, (err, res)=>{
+        if (err) throw err;
+    inquirer.prompt([
+        {
+            name:'newPosition', 
+            type: 'list', 
+            message: 'Choose the new Position',
+            choices: res.map(res=> res.id + " " + res.positions)
+        }
+    ]).then(response => {
+        const positionID = response.newPosition.split(' ')[0]
+        const sql = `UPDATE players SET positions_id = ${positionID} WHERE id = ${id}`;
+        db.query(sql, (err, res)=>{
+            if (err) throw err; 
+            console.table(res)
+            showPrompts();
+        })
+        })
+    })
+}
+
 
 showPrompts();
