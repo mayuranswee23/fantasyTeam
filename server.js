@@ -9,7 +9,7 @@ function showPrompts(){
         type: 'list', 
         message: 'Select an option from below', 
         name: 'options', 
-        choices: ['View Clubs', 'View Positions', 'View Players', 'Add Club', 'Add Position', 'Add Player', 'Update Player', 'Exit']
+        choices: ['View Clubs', 'View Positions', 'View Players', 'Add Club', 'Add Position', 'Add Player', 'Update Player', 'Delete Player', 'Exit']
     },
 ]).then(response => {
     const action = response.options; 
@@ -34,6 +34,9 @@ function showPrompts(){
             break;
         case 'Update Player':
             updatePlayer();
+            break;
+        case `Delete Player`: 
+            deletePlayers();
             break;
         case 'Exit':
             console.log('Bye!');
@@ -321,6 +324,41 @@ function updatePosition(id){
             console.table(res)
             showPrompts();
         })
+        })
+    })
+}
+
+function deletePlayers(){
+    const sql = `SELECT 
+    players.id,
+    players.first_name, 
+    players.last_name,
+    clubs.player_name AS club_name, 
+    field_positions.positions AS Position
+    FROM players
+    INNER JOIN clubs ON players.club_id = clubs.id
+    INNER JOIN field_positions ON players.positions_id = field_positions.id`
+
+    db.query(sql, (err, res)=> {
+        if (err) throw err; 
+    
+        inquirer.prompt([
+            {
+                name: 'deletePlayer', 
+                type: 'list', 
+                message: 'Which player do you want to remove?', 
+                choices: res.map(res=> "ID: " + res.id + " " + res.first_name + " " + res.last_name 
+                + " Club: " + res.club_name + " Position: " + res.Position) 
+            }
+        ]).then(response => {
+            const deletion = response.deletePlayer.split(' ')[1];
+            console.log(deletion)
+            const sql = `DELETE FROM players WHERE id = ${deletion}`;
+            db.query(sql, (err, res)=> {
+                if (err) throw err; 
+                console.table(res); 
+                showPrompts();
+            })
         })
     })
 }
